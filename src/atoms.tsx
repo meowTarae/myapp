@@ -5,21 +5,30 @@ export enum Categories {
   "DOING" = "DOING",
   "DONE" = "DONE",
 }
+
+export type CategoriesList = string;
+
 export interface IToDo {
   text: string;
   id: number;
-  category: Categories;
+  category: CategoriesList;
 }
 
-export const categoryState = atom<Categories>({
-  key: "category",
+export const categoryState = atom<CategoriesList>({
+  key: "categroy",
   default: Categories.TO_DO,
+});
+
+export const categoriesState = atom<CategoriesList[]>({
+  key: "categories",
+  default: [...Object.keys(Categories)],
 });
 
 export const toDoState = atom<IToDo[]>({
   key: "toDo",
   default: [],
 });
+
 export const toDoSelector = selector({
   key: "toDoSelector",
   get: ({ get }) => {

@@ -1,5 +1,5 @@
 {
-  "name": "myapp",
+  "name": "todo-list",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -58,5 +58,6 @@
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.26"
-  }
+  },
+  "homepage": "https://meowTarae.github.io/todoList-react"
 }

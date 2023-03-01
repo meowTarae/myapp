@@ -1,24 +1,74 @@
-import React from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { Categories, categoryState, toDoSelector } from "../atoms";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  categoriesState,
+  categoryState,
+  toDoSelector,
+  toDoState,
+} from "../atoms";
 import CreateToDo from "./CreateToDo";
 import ToDo from "./ToDo";
 
+interface IForm {
+  category: string;
+}
+
 function ToDoList() {
+  const toDosModifer = useSetRecoilState(toDoState);
   const toDos = useRecoilValue(toDoSelector);
   const [category, setCategory] = useRecoilState(categoryState);
-  const onInput = (event: React.FormEvent<HTMLSelectElement>) => {
-    setCategory(event.currentTarget.value as any);
+  const [categories, categoriesModifer] = useRecoilState(categoriesState);
+  const { register, handleSubmit, setValue } = useForm<IForm>();
+  const handleValid = ({ category }: IForm) => {
+    setCategory((oldCategory) => {
+      return category;
+    });
+    categoriesModifer((pre) => {
+      const newCategories = [...pre, category];
+      localStorage.setItem("categories", JSON.stringify(newCategories));
+      return newCategories;
+    });
+    setValue("category", "");
   };
-  console.log(toDos);
+  const onInput = (event: React.FormEvent<HTMLSelectElement>) => {
+    const {
+      currentTarget: { value },
+    } = event;
+    setCategory(value);
+  };
+  useEffect(() => {
+    if (localStorage.getItem("toDos") !== null) {
+      const localToDos = JSON.parse(localStorage.getItem("toDos") || "");
+      toDosModifer(() => localToDos);
+    }
+    if (localStorage.getItem("categories") !== null) {
+      const localCategories = JSON.parse(
+        localStorage.getItem("categories") || ""
+      );
+      categoriesModifer(() => localCategories);
+    }
+  }, [toDosModifer, categoriesModifer]);
   return (
     <div>
       <h1>To Dos</h1>
+      <form onSubmit={handleSubmit(handleValid)}>
+        <input
+          {...register("category", {
+            required: "Please write a Category",
+          })}
+          placeholder="Input your Category"
+          type="text"
+        />
+        <button>Add category</button>
+      </form>
       <hr />
       <select value={category} onInput={onInput}>
-        <option value={Categories.TO_DO}>To Do</option>
-        <option value={Categories.DOING}>Doing</option>
-        <option value={Categories.DONE}>Done</option>
+        {categories.map((category, idx) => (
+          <option key={idx} value={category}>
+            {category}
+          </option>
+        ))}
       </select>
       <CreateToDo />
       {toDos?.map((toDo) => (
@@ -27,4 +77,5 @@ function ToDoList() {
     </div>
   );
 }
+
 export default ToDoList;
